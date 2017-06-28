@@ -14,7 +14,11 @@ client.on('message', function (message) {
         let args = message.content.split(" ");
         let command = args.shift().slice(settings.commandPrefix.length);
         if (commands[command]) {
-            commands[command].execute(message, args);
+            try {
+                commands[command].execute(message, args);
+            } catch(e) {
+                console.error("Error executing command '" + command + "':\n" + e);
+            }
         }
     }
 });
@@ -22,6 +26,9 @@ client.on('message', function (message) {
 if (process.env.DISCORD_API_TOKEN) {
     client.login(process.env.DISCORD_API_TOKEN).then(function(){
         client.user.setPresence({game: {name: settings.statusText}});
+        process.on('exit', function(){
+            client.destroy();
+        });
     });
 } else {
     console.error('Error: Environment variable "DISCORD_API_TOKEN" not found!');
