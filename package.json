@@ -1,0 +1,26 @@
+{
+  "name": "wololobot",
+  "version": "1.0.0",
+  "description": "A general purpose Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sedlak477/WololoBot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "sedlak477",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sedlak477/WololoBot/issues"
+  },
+  "homepage": "https://github.com/sedlak477/WololoBot#readme",
+  "dependencies": {
+    "discord.js": "^11.1.0"
+  }
+}
