@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/sedlak477/WololoBot#readme",
   "dependencies": {
-    "discord.js": "^11.1.0"
+    "discord.js": "^11.1.0",
+    "mongoose": "^4.11.0"
   }
 }
