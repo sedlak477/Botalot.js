@@ -21,7 +21,7 @@ client.on('message', function (message) {
 
 if (process.env.DISCORD_API_TOKEN) {
     client.login(process.env.DISCORD_API_TOKEN).then(function(){
-        client.user.setPresence({game: {name: "!help"}});
+        client.user.setPresence({game: {name: settings.statusText}});
     });
 } else {
     console.error('Error: Environment variable "DISCORD_API_TOKEN" not found!');
