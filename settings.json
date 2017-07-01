@@ -1,4 +1,5 @@
 {
     "commandPrefix": "!",
-    "statusText": "!help"
+    "statusText": "!help",
+    "youtubeBufferSize": 4194304
 }

@@ -1,12 +1,14 @@
 const discordjs = require("discord.js");
-const mongoose = require("mongoose");
-const models = require("./models.js");
 const commands = require("./commands.js");
 const settings = require("./settings.json");
 
-const db = mongoose.connect("localhost:27017/wololobot");
 const client = new discordjs.Client({
     apiRequestMethod: 'burst'
+});
+
+client.on("ready", function() {
+    console.log("WololoBot started");
+    client.user.setPresence({game: {name: settings.statusText}});
 });
 
 client.on('message', function (message) {
@@ -24,12 +26,16 @@ client.on('message', function (message) {
 });
 
 if (process.env.DISCORD_API_TOKEN) {
-    client.login(process.env.DISCORD_API_TOKEN).then(function(){
-        client.user.setPresence({game: {name: settings.statusText}});
-        process.on('exit', function(){
-            client.destroy();
-        });
-    });
+    client.login(process.env.DISCORD_API_TOKEN);
 } else {
     console.error('Error: Environment variable "DISCORD_API_TOKEN" not found!');
 }
+
+const stdin = process.openStdin();
+stdin.addListener("data", function(data) {
+    if(data.toString().trim() === "exit") {
+        client.destroy().then(function() {
+            process.exit();
+        });
+    }
+});

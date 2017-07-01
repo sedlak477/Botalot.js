@@ -21,7 +21,13 @@
   },
   "homepage": "https://github.com/sedlak477/WololoBot#readme",
   "dependencies": {
+    "ytdl-core": "^0.14.4"
+  },
+  "optionalDependencies": {
+    "uws": "^8.14.0"
+  },
+  "devDependencies": {
     "discord.js": "^11.1.0",
-    "mongoose": "^4.11.0"
+    "opusscript": "0.0.3"
   }
 }
