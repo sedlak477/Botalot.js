@@ -1,11 +1,8 @@
-const discordjs = require("discord.js");
 const ytdl = require("ytdl-core");
-const package = require("./package.json");
-const settings = require("./settings.json");
+const settings = require("../settings.json");
+const package = require("../../package.json");
 
-module.exports = {};
-
-[
+module.exports = [
     {
         name: "help",
         callback: function (message, args) {
@@ -38,21 +35,6 @@ module.exports = {};
         }
     },
     {
-        name: "dejavu",
-        callback: function (message, args) {
-            if (args.length > 0) {
-                message.guild.channels.array().forEach(function (channel) {
-                    if (channel.type == "voice" && channel.name == args[0]) {
-                        channel.join().then(function (connection) {
-                            connection.playFile("D:\\Music\\Initial D - Deja Vu.mp3");
-                        });
-                        return false;
-                    }
-                }, this);
-            }
-        }
-    },
-    {
         name: ["yt", "youtube"],
         callback: function (message, args) {
             if (!message.guild) return;
@@ -81,31 +63,21 @@ module.exports = {};
         usage: settings.commandPrefix + this.name + " <channel> <youtube-url>"
     },
     {
-        name: ["clear", "cls"],
-        callback: function(message, args) {
-            if(message.guild) {
-                let messages = message.channel.fetchMessages({});
-                message.channel.bulkDelete(messages, true);
+        name: "note",
+        callback: function (message, args) {
+            if (args.length > 1) {
+                this[args[0]] = args[1];
+            } else if (args.length == 1) {
+                message.reply(this[args[0]]);
             }
         }
-    }
-]
-    .forEach(function (commandDef) {
-        if (Array.isArray(commandDef.name)) {
-            commandDef.name.forEach(function (name) {
-                module.exports[name] = {
-                    execute: function (message, args) {
-                        commandDef.callback.bind(commandDef.context ? commandDef.context : {})(message, args);
-                    },
-                    usage: commandDef.usage
-                };
-            }, this);
-        } else {
-            module.exports[commandDef.name] = {
-                execute: function (message, args) {
-                    commandDef.callback.bind(commandDef.context ? commandDef.context : {})(message, args);
-                },
-                usage: commandDef.usage
-            };
+    },
+    {
+        name: "howtoyouturnthison",
+        callback: function (message, args) {
+            message.channel.send("", {
+                files: ["http://wallpapercave.com/wp/UPfurNz.jpg"]
+            });
         }
-    }, this);
+    }
+];
