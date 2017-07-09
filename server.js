@@ -1,7 +1,9 @@
-const idoiabot = require("./index.js");
+"use strict";
+const idoiabot = require("./bot/idoiabot.js");
 
-const bot = new idoiabot.Bot();
+let bot = new idoiabot.Bot();
 
+bot.on("error", (err) => console.error("Error: " + err));
 bot.on("login", () => console.log("Logged in"));
 
 if (process.env.DISCORD_API_TOKEN) {
@@ -12,9 +14,11 @@ if (process.env.DISCORD_API_TOKEN) {
 
 var stdin = process.openStdin();
 
-stdin.addListener("data", function(d) {
-    if (d.toString().trim() == "exit") {
-        bot.close();
-        process.exit();
+stdin.addListener("data", function (d) {
+    let command = d.toString().trim();
+    switch (command) {
+        case "exit":
+            bot.close().then(() => process.exit());
+            break;
     }
 });

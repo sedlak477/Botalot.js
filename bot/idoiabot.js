@@ -1,6 +1,7 @@
 /**
  * @module bot/idoiabot
  */
+
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
 const commands = require("./command.js");
@@ -14,7 +15,7 @@ class Bot extends EventEmitter {
      * @param {string} options.statusText - The string displayed as the bot's current game
      */
     constructor(options) {
-        options = options | {};
+        options = options || {};
         super();
 
         /**
@@ -22,7 +23,7 @@ class Bot extends EventEmitter {
          * @private
          * @type bot/command.CommandManager
          */
-        this._commandManager = new commands.CommandManager(commands.commands);
+        this._commandManager = new commands.CommandManager(commands.commands.map(e => new commands.Command(e)));
 
         /**
          * Discord.js client
@@ -33,24 +34,30 @@ class Bot extends EventEmitter {
         });
 
         this._client.on("message", function (message) {
-            if (!message.author.bot && message.content.startsWith(options.commandPrefix)) {
-                this.commandManager.execute(message);
+            if (!message.author.bot && message.content.startsWith(options.commandPrefix || defaults.commandPrefix)) {
+                this._commandManager.execute(message);
             }
             this.emit("message", message);
         }.bind(this));
 
         this._client.on("ready", function () {
-            this.client.user.setPresence({ game: { name: options.statusText | defaults.statusText | null } });
+            this._client.user.setPresence({ game: { name: options.statusText || defaults.statusText || null } });
         }.bind(this));
     }
 
     login(token) {
-        this._client.login(token).then(() => this.emit("login"));
+        this._client.login(token).then(() => this.emit("login")).catch((err) => this.emit("error", err));
     }
 
+    /**
+     * Shut down the bot
+     * @returns Promise<void>
+     */
     close() {
-        this._client.destroy().then(() => this.emit("close"));
+        return this._client.destroy().then(() => this.emit("close")).catch(() => this.emit("close"));
     }
 }
 
-module.exports = Bot;
+module.exports = {
+    Bot: Bot
+};

@@ -3,7 +3,7 @@
  */
 
 const ytdl = require("ytdl-core");
-const settings = require("./defaults.json");
+const defaults = require("./defaults.json");
 const package = require("../package.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
 
@@ -27,29 +27,32 @@ class Command {
      * @param {string} options.help - A short description of how to use the command 
      * @param {Object} options.data - The object the this keyword of the command callback function points to
      */
-    constructor(name, options) {
+    constructor(options, name) {
+        options = options || {};
         /**
          * Predefined data for the execution of the command
          * @type {object}
          */
-        this.data = options.data | {};
+        this.data = options.data || {};
 
         /**
          * Usage definition
          * @type {string}
          */
-        this.usage = options.usage | settings.defaults.commands.usage | "";
+        this.usage = options.usage || defaults.commands.usage || "";
 
         /**
          * Help string
          * @type {string}
          */
-        this.help = options.help | settings.defaults.commands.help | "";
+        this.help = options.help || defaults.commands.help || "";
 
         /**
          * Name or names of the command
          */
-        this.name = name;
+        this.name = name || options.name;
+
+        this.callback = options.callback || function() {};
 
         /**
          * Manager managing all the contexts
@@ -63,8 +66,12 @@ class Command {
      * @param {Message} message A discord.js Message object
      */
     execute(message) {
-        let args = message.content.trim().slice(1).split(/ (?=([^"]*"[^"]*")*[^"]*$)/);
+        let args = message.content.trim().slice(1).match(/(?:[^\s"]+|"[^"]*")+/g);
         args.shift();
+        let context = this._contextManager.getExecutionContext(message.channel, message.guild);
+        if (this.callback) {
+            this.callback.bind(context)(message, args);
+        }
     }
 
     /**
@@ -73,13 +80,9 @@ class Command {
      */
     isCommand(name) {
         if (Array.isArray(this.name)) {
-            if (this.name.includes(name)) {
-                return true;
-            }
-        } else if (this.name == name) {
-            return true;
+                return this.name.includes(name);
         }
-        return false;
+        return this.name == name;
     }
 }
 
@@ -136,26 +139,14 @@ module.exports = {
         {
             name: "help",
             callback: function (message, args) {
-                if (args.length == 0) {
-                    message.channel.send("WololoBot v" + package.version + " written by " + package.author + "\nType !commands for a list of all commands");
-                } else if (args.length == 1) {
-
-                } else {
-                    message.channel.send("WololoBot v" + package.version + " written by " + package.author + "\nType !commands for a list of all commands");
-                }
-            }
-        },
-        {
-            name: "commands",
-            callback: function (message, args) {
-                message.channel.send("Available commands:\n" + Object.keys(module.exports).join(", "));
+                message.channel.send("IdoiaBot v" + package.version + " written by " + package.author);
             }
         },
         {
             name: "kawaii",
             callback: function (message, args) {
                 message.channel.send("", {
-                    files: [this.pictures[Math.floor(Math.random() * this.pictures.length)]]
+                    files: [this.data.pictures[Math.floor(Math.random() * this.data.pictures.length)]]
                 });
             },
             data: {
@@ -184,30 +175,22 @@ module.exports = {
                 }
                 if (channel && videoUrl) {
                     channel.join().then(function (connection) {
-                        connection.playStream(ytdl(videoUrl, { quality: "lowest", highWaterMark: settings.youtubeBufferSize }), { passes: 2 }).on("end", function () {
+                        connection.playStream(ytdl(videoUrl, { quality: "lowest", highWaterMark: defaults.youtubeBufferSize }), { passes: 2 }).on("end", function () {
                             channel.leave();
                         });
                     });
                 }
             },
-            usage: settings.commandPrefix + this.name + " <channel> <youtube-url>"
+            usage: defaults.commandPrefix + this.name + " <channel> <youtube-url>"
         },
         {
             name: "note",
             callback: function (message, args) {
                 if (args.length > 1) {
-                    this[args[0]] = args[1];
+                    this.channelContext[args[0]] = args[1];
                 } else if (args.length == 1) {
-                    message.reply(this[args[0]]);
+                    message.reply(this.channelContext[args[0]]);
                 }
-            }
-        },
-        {
-            name: "howtoyouturnthison",
-            callback: function (message, args) {
-                message.channel.send("", {
-                    files: ["http://wallpapercave.com/wp/UPfurNz.jpg"]
-                });
             }
         }
     ]

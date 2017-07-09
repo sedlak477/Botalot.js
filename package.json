@@ -1,15 +1,15 @@
 {
-  "name": "wololobot",
+  "name": "idoiabot",
   "version": "1.0.0",
-  "description": "A general purpose Discord bot",
-  "main": "index.js",
+  "description": "A bot for Discord",
+  "main": "bot/idoiabot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sedlak477/WololoBot.git"
+    "url": "git+https://github.com/sedlak477/IdoiaBot.git"
   },
   "keywords": [
     "discord",
@@ -18,17 +18,17 @@
   "author": "sedlak477",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sedlak477/WololoBot/issues"
+    "url": "https://github.com/sedlak477/IdoiaBot/issues"
   },
-  "homepage": "https://github.com/sedlak477/WololoBot#readme",
+  "homepage": "https://github.com/sedlak477/IdoiaBot#readme",
   "dependencies": {
-    "ytdl-core": "^0.14.4"
+    "ytdl-core": "^0.14.4",
+    "discord.js": "^11.1.0"
   },
   "optionalDependencies": {
     "uws": "^8.14.0"
   },
   "devDependencies": {
-    "discord.js": "^11.1.0",
     "opusscript": "0.0.3"
   }
 }

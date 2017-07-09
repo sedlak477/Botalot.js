@@ -12,7 +12,7 @@ class CommandContextManager {
          * Contains predefined data for the command
          * @type {object}
          */
-        this.data = data | {};
+        this.data = data || {};
 
         /**
          * Global context of the command
@@ -61,7 +61,7 @@ class CommandContextManager {
      * @param {Snowflake} id A discord.js Snowflake
      */
     getContext(id) {
-        return this.contexts.get(id) | {};
+        return this._contexts.get(id) || {};
     }
 }
 
