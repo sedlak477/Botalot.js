@@ -21,11 +21,18 @@ class CommandContextManager {
         this.globalContext = {};
 
         /**
-         * Map containing all the channel and guild contexts
+         * Map containing all the channel contexts
          * @private
          * @type {Map}
          */
-        this._contexts = new Map();
+        this._channelContexts = new Map();
+
+        /**
+         * Map containing all the guild contexts
+         * @private
+         * @type {Map}
+         */
+        this._guildContexts = new Map();
     }
 
     /**
@@ -48,8 +55,8 @@ class CommandContextManager {
             data: this.data,
             globalContext: this.globalContext
         };
-        if (channel) { context.channelContext = this.getContext(channel.id); }
-        if (guild) { context.guildContext = this.getContext(guild.id); }
+        if (channel) { context.channelContext = this.getChannelContext(channel.id); }
+        if (guild) { context.guildContext = this.getGuildContext(guild.id); }
         if (guild) { context.context = context.guildContext; }
         else if (channel) { context.context = context.channelContext; }
         else { context.context = context.globalContext; }
@@ -57,11 +64,25 @@ class CommandContextManager {
     }
 
     /**
-     * Get a channel or guild context
+     * Get a guild context
      * @param {Snowflake} id A discord.js Snowflake
      */
-    getContext(id) {
-        return this._contexts.get(id) || {};
+    getGuildContext(id) {
+        if (!this._guildContexts.has(id)) {
+            this._guildContexts.set(id, {});
+        }
+        return this._guildContexts.get(id);
+    }
+
+    /**
+     * Get a channel context
+     * @param {Snowflake} id A discord.js Snowflake
+     */
+    getChannelContext(id) {
+        if (!this._channelContexts.has(id)) {
+            this._channelContexts.set(id, {});
+        }
+        return this._channelContexts.get(id);
     }
 }
 

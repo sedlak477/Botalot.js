@@ -19,11 +19,11 @@ class Bot extends EventEmitter {
         super();
 
         /**
-         * Command manager
+         * Map mapping command prefixes to their CommandManagers
          * @private
-         * @type bot/command.CommandManager
+         * @type Map<string, CommandManager[]>
          */
-        this._commandManager = new commands.CommandManager(commands.commands.map(e => new commands.Command(e)));
+        this._commandManagers = new Map();
 
         /**
          * Discord.js client
@@ -34,8 +34,12 @@ class Bot extends EventEmitter {
         });
 
         this._client.on("message", function (message) {
-            if (!message.author.bot && message.content.startsWith(options.commandPrefix || defaults.commandPrefix)) {
-                this._commandManager.execute(message);
+            for (var [prefix, cmdMgrs] of this._commandManagers) {
+                if (message.content.startsWith(prefix)) {
+                    cmdMgrs.forEach(function(cmdMgr) {
+                        cmdMgr.execute(message);
+                    });
+                }
             }
             this.emit("message", message);
         }.bind(this));
@@ -45,6 +49,26 @@ class Bot extends EventEmitter {
         }.bind(this));
     }
 
+    /**
+     * Register a CommandManager for a specific prefix.
+     * 
+     * NOTE: if one prefix is a substring of another one, both will be called
+     * 
+     * @param {string} prefix Prefix that invokes the CommandManager
+     * @param {CommandManager} cmdMgr The CommandManager
+     */
+    registerCommandManager(prefix, cmdMgr) {
+        if (!this._commandManagers.has(prefix)) {
+            this._commandManagers.set(prefix, [cmdMgr]);
+        } else {
+            this._commandManagers.get(prefix).append(cmdMgr);
+        }
+    }
+
+    /**
+     * Login into the Discord API
+     * @param {string} token Discord API token
+     */
     login(token) {
         this._client.login(token).then(() => this.emit("login")).catch((err) => this.emit("error", err));
     }
@@ -54,6 +78,9 @@ class Bot extends EventEmitter {
      * @returns Promise<void>
      */
     close() {
+        for (var cmdMgr in this._commandManagers.values()) {
+            cmdMgr.close();
+        }
         return this._client.destroy().then(() => this.emit("close")).catch(() => this.emit("close"));
     }
 }

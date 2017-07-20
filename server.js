@@ -1,9 +1,9 @@
-"use strict";
 const idoiabot = require("./bot/idoiabot.js");
+const command = require("./bot/command.js");
 
 let bot = new idoiabot.Bot();
 
-bot.on("error", (err) => console.error("Error: " + err));
+bot.on("error", (err) => console.error("" + err));
 bot.on("login", () => console.log("Logged in"));
 
 if (process.env.DISCORD_API_TOKEN) {
