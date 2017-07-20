@@ -4,7 +4,7 @@
 
 const ytdl = require("ytdl-core");
 const defaults = require("./defaults.json");
-const package = require("../package.json");
+const packageInfo = require("../package.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
 
 /**
@@ -12,20 +12,29 @@ const CommandContextManager = require("./context.js").CommandContextManager;
  */
 class Command {
     /**
+     * @typedef {object} commandExecuteData The data passed to a commandExecuteCallback call
+     * @prop {Message} message A discord.js Message object that called the command
+     * @prop {string[]} args Arguments passed to the command
+     * @prop {CommandManager} commandManager The CommandManager that invoked the command
+     */
+    /**
      * @callback commandExecuteCallback The callback executed when the command is called
-     * @param {Message} message - A discord.js Message object
-     * @param {string[]} args - List of arguments passed to the command
+     * @param {commandExecuteData} commandExecuteData Data for command execution
+     * @returns {string|undefined} Answer that will be written in the channel in which the command was received
      * @this Points to this commands execution context
      * @see CommandContextManager
      */
     /**
+     * @typedef {object} commandOptions Options for creating a command
+     * @prop {commandExecuteCallback} callback The callback executed when the command is called
+     * @prop {string} usage A short description how to call the command
+     * @prop {string} help A short description of how to use the command 
+     * @prop {Object} data The object the this keyword of the command callback function points to
+     */
+    /**
      * Create a new command
-     * @param {Object} options Options
+     * @param {commandOptions} options Options
      * @param {string|string[]} name - The name or names of the command
-     * @param {commandExecuteCallback} options.callback - The callback executed when the command is called
-     * @param {string} options.usage - A short description how to call the command
-     * @param {string} options.help - A short description of how to use the command 
-     * @param {Object} options.data - The object the this keyword of the command callback function points to
      */
     constructor(options, name) {
         options = options || {};
@@ -49,6 +58,7 @@ class Command {
 
         /**
          * Name or names of the command
+         * @type {string|string[]}
          */
         this.name = name || options.name;
 
@@ -62,15 +72,19 @@ class Command {
     }
 
     /**
-     * 
-     * @param {Message} message A discord.js Message object
+     * Execute this command
+     * @param {Message} message The discord.js Message object that invoked this command
+     * @param {CommandManager} commandManager The CommandManager that invoked this command
      */
-    execute(message) {
+    execute(message, commandManager) {
         let args = message.content.trim().slice(1).match(/(?:[^\s"]+|"[^"]*")+/g);
         args.shift();
         let context = this._contextManager.getExecutionContext(message.channel, message.guild);
         if (this.callback) {
-            this.callback.bind(context)(message, args);
+            let answer = this.callback.bind(context)({ message: message, args: args, commandManager: commandManager});
+            if (answer) {
+                message.channel.send(answer);
+            }
         }
     }
 
@@ -93,7 +107,7 @@ class CommandManager {
 
     /**
      * Create a new CommandManager
-     * @param {Command[]} [commands] - List of commands
+     * @param {Command[]} [commands] List of commands
      */
     constructor(commands) {
         /**
@@ -105,47 +119,51 @@ class CommandManager {
 
     /**
      * Executes a command if it exists
-     * @param {Message} message - Discord.js Message that contains command call
+     * @param {Message} message Discord.js Message that contains command call
      */
     execute(message) {
         // Split on blanks; ingnore between quotes
         let args = message.content.trim().slice(1).split(/ (?=([^"]*"[^"]*")*[^"]*$)/, 2);
         let cmd = this.getCommand(args.shift());
         if (cmd) {
-            cmd.execute(message);
+            cmd.execute(message, this);
         }
     }
 
     /**
-     * 
-     * @param {string} commandName - Name of command
-     * @return {Command} command or null if not found
+     * Get a Command
+     * @param {string} commandName Name of command
+     * @return {Command} command or undefined if not found
      */
     getCommand(commandName) {
-        for (var i = 0; i < this.commands.length; i++) {
-            if (this.commands[i].isCommand(commandName)) {
-                return this.commands[i];
-            }
-        }
-        return null;
+        return this.commands.find(c => c.isCommand(commandName));
     }
 
+    close() {
+
+    }
 }
 
 module.exports = {
     Command: Command,
     CommandManager: CommandManager,
+    /**
+     * Parse command definitions into Commands
+     * @param {object[]} cmdDef List of command definitions
+     * @returns {Command[]} List of Commands
+     */
+    parseCommands: cmdDef => cmdDef.map(d => new Command(d)),
     commands: [
         {
             name: "help",
-            callback: function (message, args) {
-                message.channel.send("IdoiaBot v" + package.version + " written by " + package.author);
+            callback: function (data) {
+                return "IdoiaBot v" + packageInfo.version + " written by " + packageInfo.author;
             }
         },
         {
             name: "kawaii",
-            callback: function (message, args) {
-                message.channel.send("", {
+            callback: function (data) {
+                data.message.channel.send("", {
                     files: [this.data.pictures[Math.floor(Math.random() * this.data.pictures.length)]]
                 });
             },
@@ -158,20 +176,20 @@ module.exports = {
         {
             name: ["yt", "youtube"],
             callback: function (message, args) {
-                if (!message.guild) return;
+                if (!data.message.guild) return;
                 let channel = null;
                 let videoUrl = null;
-                if (args.length == 2) {
-                    videoUrl = args[1];
-                    message.guild.channels.array().forEach(function (ch) {
-                        if (ch.type == "voice" && ch.name == args[0]) {
+                if (data.args.length == 2) {
+                    videoUrl = data.args[1];
+                    data.message.guild.channels.array().forEach(function (ch) {
+                        if (ch.type == "voice" && ch.name == data.args[0]) {
                             channel = ch;
                             return false;
                         }
                     }, this);
-                } else if (args.length == 1) {
-                    videoUrl = args[0];
-                    channel = message.member.voiceChannel;
+                } else if (data.args.length == 1) {
+                    videoUrl = data.args[0];
+                    channel = data.message.member.voiceChannel;
                 }
                 if (channel && videoUrl) {
                     channel.join().then(function (connection) {
@@ -185,11 +203,11 @@ module.exports = {
         },
         {
             name: "note",
-            callback: function (message, args) {
-                if (args.length > 1) {
-                    this.channelContext[args[0]] = args[1];
-                } else if (args.length == 1) {
-                    message.reply(this.channelContext[args[0]]);
+            callback: function (data) {
+                if (data.args.length > 1) {
+                    this.context[data.args[0]] = data.args[1];
+                } else if (data.args.length == 1) {
+                    return this.context[data.args[0]];
                 }
             }
         }

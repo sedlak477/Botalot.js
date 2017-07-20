@@ -22,8 +22,9 @@
   },
   "homepage": "https://github.com/sedlak477/IdoiaBot#readme",
   "dependencies": {
-    "ytdl-core": "^0.14.4",
-    "discord.js": "^11.1.0"
+    "discord.js": "^11.1.0",
+    "mongoose": "^4.11.3",
+    "ytdl-core": "^0.14.4"
   },
   "optionalDependencies": {
     "uws": "^8.14.0"

@@ -60,3 +60,6 @@ typings/
 .idea/
 data/
 ffmpeg.exe
+jsdoc.conf.json
+out/
+.vscode/**
