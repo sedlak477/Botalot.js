@@ -4,7 +4,6 @@
 
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
-const commands = require("./command.js");
 const defaults = require("./defaults.json");
 
 class Bot extends EventEmitter {

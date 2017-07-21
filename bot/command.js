@@ -2,10 +2,9 @@
  * @module bot/command
  */
 
-const ytdl = require("ytdl-core");
 const defaults = require("./defaults.json");
-const packageInfo = require("../package.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
+const cmdTemplates = require("./templates/commands.js");
 
 /**
  * Represents a command that can be called by users
@@ -62,7 +61,14 @@ class Command {
          */
         this.name = name || options.name;
 
-        this.callback = options.callback || function() {};
+        //If it's a string try get from templates
+        if (typeof(options.callback) === "string") {
+            this.callback = cmdTemplates[options.callback];
+        } else {
+            this.callback = options.callback;
+        }
+        // If nothing worked put no logic
+        this.callback = this.callback || function() {};
 
         /**
          * Manager managing all the contexts
@@ -82,9 +88,11 @@ class Command {
         let context = this._contextManager.getExecutionContext(message.channel, message.guild);
         if (this.callback) {
             let answer = this.callback.bind(context)({ message: message, args: args, commandManager: commandManager});
-            if (answer) {
+            if(typeof(answer) === "object") {
+                message.channel.send(answer.message, answer.options);
+            } else if (answer) {
                 message.channel.send(answer);
-            }
+            } 
         }
     }
 
@@ -94,7 +102,7 @@ class Command {
      */
     isCommand(name) {
         if (Array.isArray(this.name)) {
-                return this.name.includes(name);
+            return this.name.includes(name);
         }
         return this.name == name;
     }
@@ -139,6 +147,22 @@ class CommandManager {
         return this.commands.find(c => c.isCommand(commandName));
     }
 
+    /**
+     * Register a new command
+     * @param {Command} command Command to register
+     */
+    registerCommand(command) {
+        this.commands.push(command);
+    }
+
+    /**
+     * Register multiple commands at the same time
+     * @param {Command[]} commands Commands to register
+     */
+    registerCommands(commands) {
+        this.commands = this.commands.concat(commands);
+    }
+
     close() {
 
     }
@@ -155,61 +179,18 @@ module.exports = {
     parseCommands: cmdDef => cmdDef.map(d => new Command(d)),
     commands: [
         {
-            name: "help",
-            callback: function (data) {
-                return "IdoiaBot v" + packageInfo.version + " written by " + packageInfo.author;
-            }
-        },
-        {
             name: "kawaii",
-            callback: function (data) {
-                data.message.channel.send("", {
-                    files: [this.data.pictures[Math.floor(Math.random() * this.data.pictures.length)]]
-                });
-            },
+            callback: cmdTemplates.respondeRandomFile,
             data: {
-                pictures: ["http://pm1.narvii.com/5772/caa1dc8887917ba80ee15e0e0a8a7c889f6cf14f_hq.jpg",
+                files: ["http://pm1.narvii.com/5772/caa1dc8887917ba80ee15e0e0a8a7c889f6cf14f_hq.jpg",
                     "http://pm1.narvii.com/5772/930f75b937b39d850e3ccdf672277e3d9cbabf63_hq.jpg",
                     "http://pm1.narvii.com/5772/6e5d047862c2e063902c7c5226c60f6e6b6387fd_hq.jpg"]
             }
         },
         {
             name: ["yt", "youtube"],
-            callback: function (message, args) {
-                if (!data.message.guild) return;
-                let channel = null;
-                let videoUrl = null;
-                if (data.args.length == 2) {
-                    videoUrl = data.args[1];
-                    data.message.guild.channels.array().forEach(function (ch) {
-                        if (ch.type == "voice" && ch.name == data.args[0]) {
-                            channel = ch;
-                            return false;
-                        }
-                    }, this);
-                } else if (data.args.length == 1) {
-                    videoUrl = data.args[0];
-                    channel = data.message.member.voiceChannel;
-                }
-                if (channel && videoUrl) {
-                    channel.join().then(function (connection) {
-                        connection.playStream(ytdl(videoUrl, { quality: "lowest", highWaterMark: defaults.youtubeBufferSize }), { passes: 2 }).on("end", function () {
-                            channel.leave();
-                        });
-                    });
-                }
-            },
-            usage: defaults.commandPrefix + this.name + " <channel> <youtube-url>"
-        },
-        {
-            name: "note",
-            callback: function (data) {
-                if (data.args.length > 1) {
-                    this.context[data.args[0]] = data.args[1];
-                } else if (data.args.length == 1) {
-                    return this.context[data.args[0]];
-                }
-            }
+            callback: cmdTemplates.playYoutubeVideo,
+            usage: "youtube <channel> <youtube-url>"
         }
     ]
 };

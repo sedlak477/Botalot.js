@@ -1,0 +1,15 @@
+[
+    {
+        "name": "help",
+        "callback": "respondeHelpText",
+        "usage": "help"
+    },
+    {
+        "name": "hello",
+        "callback": "respondeRandomText",
+        "usage": "hello",
+        "data": {
+            "messages": ["Hello!", "Hi!", "Hey!", "Heyy! :D", "Yo!"]
+        }
+    }
+]

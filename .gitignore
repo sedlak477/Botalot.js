@@ -63,3 +63,4 @@ ffmpeg.exe
 jsdoc.conf.json
 out/
 .vscode/**
+.eslintrc.json
