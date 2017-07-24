@@ -64,3 +64,4 @@ jsdoc.conf.json
 out/
 .vscode/**
 .eslintrc.json
+db/

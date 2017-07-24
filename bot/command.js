@@ -5,6 +5,7 @@
 const defaults = require("./defaults.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
 const cmdTemplates = require("./templates/commands.js");
+const models = require("./database/models.js");
 
 /**
  * Represents a command that can be called by users
@@ -61,13 +62,19 @@ class Command {
          */
         this.name = name || options.name;
 
+        /**
+         * Permissions required to execute the command; if user has one of the listed permissions he is authorized to execute the command
+         * @type {string[]}
+         */
+        this.permissions = options.permissions || [];
+
         //If it's a string try get from templates
         if (typeof(options.callback) === "string") {
             this.callback = cmdTemplates[options.callback];
         } else {
             this.callback = options.callback;
         }
-        // If nothing worked put no logic
+        // If nothing worked we do nothing; maybe should throw an error
         this.callback = this.callback || function() {};
 
         /**
@@ -126,7 +133,7 @@ class CommandManager {
     }
 
     /**
-     * Executes a command if it exists
+     * Executes a command if it exists and the invoker has permission
      * @param {Message} message Discord.js Message that contains command call
      */
     execute(message) {
@@ -134,7 +141,20 @@ class CommandManager {
         let args = message.content.trim().slice(1).split(/ (?=([^"]*"[^"]*")*[^"]*$)/, 2);
         let cmd = this.getCommand(args.shift());
         if (cmd) {
-            cmd.execute(message, this);
+            if(cmd.permissions.length > 0) {
+                // Get user with ID from database
+                models.User.findOne({"id": message.author.id}, "permissions", function(err, user) {
+                    if (err) {
+                        throw err;
+                    }
+                    // Check if user has a permission listed in the command
+                    if (user && user.permissions.some(v => cmd.permissions.indexOf(v) >= 0)) {
+                        cmd.execute(message, this);
+                    }
+                });
+            } else {
+                cmd.execute(message, this);
+            }
         }
     }
 
@@ -177,20 +197,4 @@ module.exports = {
      * @returns {Command[]} List of Commands
      */
     parseCommands: cmdDef => cmdDef.map(d => new Command(d)),
-    commands: [
-        {
-            name: "kawaii",
-            callback: cmdTemplates.respondeRandomFile,
-            data: {
-                files: ["http://pm1.narvii.com/5772/caa1dc8887917ba80ee15e0e0a8a7c889f6cf14f_hq.jpg",
-                    "http://pm1.narvii.com/5772/930f75b937b39d850e3ccdf672277e3d9cbabf63_hq.jpg",
-                    "http://pm1.narvii.com/5772/6e5d047862c2e063902c7c5226c60f6e6b6387fd_hq.jpg"]
-            }
-        },
-        {
-            name: ["yt", "youtube"],
-            callback: cmdTemplates.playYoutubeVideo,
-            usage: "youtube <channel> <youtube-url>"
-        }
-    ]
 };

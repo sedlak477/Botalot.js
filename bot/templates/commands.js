@@ -1,6 +1,7 @@
 const packageInfo = require("../../package.json");
 const ytdl = require("ytdl-core");
 const defaults = require("../defaults.json");
+const models = require("../database/models.js");
 
 module.exports = {
     /**
@@ -63,4 +64,12 @@ module.exports = {
             });
         }
     },
+
+    /**
+     * Create a command in the database
+     * @param {object} data
+     */
+    createCommand: function(data) {
+        
+    }
 };

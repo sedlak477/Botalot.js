@@ -5,6 +5,7 @@
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
 const defaults = require("./defaults.json");
+const mongoose = require("mongoose");
 
 class Bot extends EventEmitter {
 
@@ -16,6 +17,8 @@ class Bot extends EventEmitter {
     constructor(options) {
         options = options || {};
         super();
+
+        this.db = mongoose.connect("mongodb://localhost:27017");
 
         /**
          * Map mapping command prefixes to their CommandManagers
@@ -36,7 +39,11 @@ class Bot extends EventEmitter {
             for (var [prefix, cmdMgrs] of this._commandManagers) {
                 if (message.content.startsWith(prefix)) {
                     cmdMgrs.forEach(function(cmdMgr) {
-                        cmdMgr.execute(message);
+                        try {
+                            cmdMgr.execute(message);
+                        } catch (error) {
+                            this.emit("error", error);
+                        }
                     });
                 }
             }
@@ -77,6 +84,7 @@ class Bot extends EventEmitter {
      * @returns Promise<void>
      */
     close() {
+        this.db.disconnect();
         for (var cmdMgr in this._commandManagers.values()) {
             cmdMgr.close();
         }
