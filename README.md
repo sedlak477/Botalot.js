@@ -1,4 +1,4 @@
-# IdoiaBot
+# Botalot.js
 Botalot.js is a simple bot-making framework for [Discord](https://discordapp.com/).
 
 ## Development
