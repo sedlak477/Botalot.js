@@ -5,7 +5,6 @@
 const defaults = require("./defaults.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
 const cmdTemplates = require("./templates/commands.js");
-const models = require("./database/models.js");
 
 /**
  * Represents a command that can be called by users
@@ -16,6 +15,7 @@ class Command {
      * @prop {Message} message A discord.js Message object that called the command
      * @prop {string[]} args Arguments passed to the command
      * @prop {CommandManager} commandManager The CommandManager that invoked the command
+     * @prop {Bot} bot The Bot that invoked the command
      */
     /**
      * @callback commandExecuteCallback The callback executed when the command is called
@@ -62,12 +62,6 @@ class Command {
          */
         this.name = name || options.name;
 
-        /**
-         * Permissions required to execute the command; if user has one of the listed permissions he is authorized to execute the command
-         * @type {string[]}
-         */
-        this.permissions = options.permissions || [];
-
         //If it's a string try get from templates
         if (typeof(options.callback) === "string") {
             this.callback = cmdTemplates[options.callback];
@@ -87,14 +81,14 @@ class Command {
     /**
      * Execute this command
      * @param {Message} message The discord.js Message object that invoked this command
+     * @param {string} arg Argument passed to the command
      * @param {CommandManager} commandManager The CommandManager that invoked this command
+     * @param {Bot} bot The bot where the command was called
      */
-    execute(message, commandManager) {
-        let args = message.content.trim().slice(1).match(/(?:[^\s"]+|"[^"]*")+/g);
-        args.shift();
+    execute(message, arg, commandManager, bot) {
         let context = this._contextManager.getExecutionContext(message.channel, message.guild);
         if (this.callback) {
-            let answer = this.callback.bind(context)({ message: message, args: args, commandManager: commandManager});
+            let answer = this.callback.bind(context)({ message: message, arg: arg, commandManager: commandManager, bot: bot});
             if(typeof(answer) === "object") {
                 message.channel.send(answer.message, answer.options);
             } else if (answer) {
@@ -108,9 +102,8 @@ class Command {
      * @param {string} name Name to check
      */
     isCommand(name) {
-        if (Array.isArray(this.name)) {
+        if (Array.isArray(this.name))
             return this.name.includes(name);
-        }
         return this.name == name;
     }
 }
@@ -122,9 +115,14 @@ class CommandManager {
 
     /**
      * Create a new CommandManager
-     * @param {Command[]} [commands] List of commands
+     * @param {Command[]|Command[][]} [commands] List of commands
      */
     constructor(commands) {
+        // If commands is 2D flatten it
+        if (commands.length > 0 && Array.isArray(commands[0])) {
+            commands = [].concat.apply([], commands);
+        } 
+
         /**
          * List of managed commands
          * @type {Command[]}
@@ -135,27 +133,14 @@ class CommandManager {
     /**
      * Executes a command if it exists and the invoker has permission
      * @param {Message} message Discord.js Message that contains command call
+     * @param {Bot} bot The bot where the command was called
      */
-    execute(message) {
+    execute(message, bot) {
         // Split on blanks; ingnore between quotes
-        let args = message.content.trim().slice(1).split(/ (?=([^"]*"[^"]*")*[^"]*$)/, 2);
+        let args = message.content.trim().slice(1).split(" ");
         let cmd = this.getCommand(args.shift());
-        if (cmd) {
-            if(cmd.permissions.length > 0) {
-                // Get user with ID from database
-                models.User.findOne({"id": message.author.id}, "permissions", function(err, user) {
-                    if (err) {
-                        throw err;
-                    }
-                    // Check if user has a permission listed in the command
-                    if (user && user.permissions.some(v => cmd.permissions.indexOf(v) >= 0)) {
-                        cmd.execute(message, this);
-                    }
-                });
-            } else {
-                cmd.execute(message, this);
-            }
-        }
+        if (cmd)
+            cmd.execute(message, args.join(" "), this, bot);
     }
 
     /**
@@ -183,9 +168,7 @@ class CommandManager {
         this.commands = this.commands.concat(commands);
     }
 
-    close() {
-
-    }
+    close() {}
 }
 
 module.exports = {
@@ -196,5 +179,5 @@ module.exports = {
      * @param {object[]} cmdDef List of command definitions
      * @returns {Command[]} List of Commands
      */
-    parseCommands: cmdDef => cmdDef.map(d => new Command(d)),
+    parseCommands: cmdDef => cmdDef.map(d => Array.isArray(d)?parseCommands(d):new Command(d))
 };

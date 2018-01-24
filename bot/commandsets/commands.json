@@ -1,0 +1,34 @@
+[
+    {
+        "name": "help",
+        "callback": "respondeHelpText",
+        "usage": "help",
+        "data": {
+            "name": "Botalot.js"
+        }
+    },
+    {
+        "name": "hello",
+        "callback": "respondeRandomText",
+        "usage": "hello",
+        "data": {
+            "messages": ["Hello!", "Hi!", "Hey!", "Heyy!", "Yo!"]
+        }
+    },
+    {
+        "name": ["yt", "youtube"],
+        "callback": "playYoutubeVideo",
+        "usage": "youtube <channel> <youtube-url>"
+    },
+    {
+        "name": "radio",
+        "callback": "playRadioStream",
+        "usage": "radio [<station> | <station-url>]",
+        "data": {
+            "fm4": "http://mp3stream1.apasf.apa.at",
+            "88.6": "http://xapp2450489345c1000321-f-l.i.farm.core.cdn.streamfarm.net/radio_886/128k.mp3",
+            "hardbase.fm": "http://listen.hardbase.fm/tunein-mp3-pls",
+            "hyrule radio": "http://listen.radiohyrule.com:8000/listen"
+        }
+    }
+]

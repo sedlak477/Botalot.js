@@ -1,15 +1,15 @@
 # IdoiaBot
-IdoiaBot is a bot for [Discord](https://discordapp.com/).
+Botalot.js is a simple bot-making framework for [Discord](https://discordapp.com/).
 
 ## Development
-IdoiaBot is a side project to get familiar with Node.js, it's under development and may have bugs. I'm constantly trying out new stuff so expect the code to change alot. If you have any recommendation how I could improve my code tell me! I'm always happy to hear any suggestions you might have!
+Botalot.js is a side project to get familiar with Node.js, it's under development and may have bugs. I'm constantly trying out new stuff so expect the code to change alot.
 
 ## Usage
-If you are using IdoiaBot as a [Node.js](https://nodejs.org/) module try this:
+If you are using Botalot.js as a [Node.js](https://nodejs.org/) module try this:
 ```javascript
-const Bot = require("idoiabot.js").Bot;
+const { Bot } = require("bot.js");
 
-var bot = new Bot();
+let bot = new Bot();
 
 bot.login(apiToken);
 ```

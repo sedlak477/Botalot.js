@@ -68,9 +68,8 @@ class CommandContextManager {
      * @param {Snowflake} id A discord.js Snowflake
      */
     getGuildContext(id) {
-        if (!this._guildContexts.has(id)) {
+        if (!this._guildContexts.has(id))
             this._guildContexts.set(id, {});
-        }
         return this._guildContexts.get(id);
     }
 
@@ -79,9 +78,8 @@ class CommandContextManager {
      * @param {Snowflake} id A discord.js Snowflake
      */
     getChannelContext(id) {
-        if (!this._channelContexts.has(id)) {
+        if (!this._channelContexts.has(id))
             this._channelContexts.set(id, {});
-        }
         return this._channelContexts.get(id);
     }
 }

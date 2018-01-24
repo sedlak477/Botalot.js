@@ -1,13 +1,15 @@
-const idoiabot = require("./bot/idoiabot.js");
+const { Bot } = require("./bot/bot.js");
 const command = require("./bot/command.js");
 
-let bot = new idoiabot.Bot();
+let bot = new Bot();
 
 bot.registerCommandManager("!",
-    new command.CommandManager(command.parseCommands(require("./bot/commandsets/common.json")))
+    new command.CommandManager(command.parseCommands(
+        require("./bot/commandsets/commands.json")
+    ))
 );
 
-bot.on("error", (err) => console.error("" + err));
+bot.on("error", console.error);
 bot.on("login", () => console.log("Logged in"));
 
 if (process.env.DISCORD_API_TOKEN) {

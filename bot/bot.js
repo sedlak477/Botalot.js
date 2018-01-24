@@ -1,11 +1,12 @@
+import { setInterval } from "timers";
+
 /**
- * @module bot/idoiabot
+ * @module bot/bot
  */
 
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
 const defaults = require("./defaults.json");
-const mongoose = require("mongoose");
 
 class Bot extends EventEmitter {
 
@@ -17,8 +18,6 @@ class Bot extends EventEmitter {
     constructor(options) {
         options = options || {};
         super();
-
-        this.db = mongoose.connect("mongodb://localhost:27017");
 
         /**
          * Map mapping command prefixes to their CommandManagers
@@ -44,7 +43,7 @@ class Bot extends EventEmitter {
                         } catch (error) {
                             this.emit("error", error);
                         }
-                    });
+                    }.bind(this));
                 }
             }
             this.emit("message", message);
@@ -52,6 +51,13 @@ class Bot extends EventEmitter {
 
         this._client.on("ready", function () {
             this._client.user.setPresence({ game: { name: options.statusText || defaults.statusText || null } });
+
+            setInterval(() => {
+                this._client.voiceConnections.array().forEach(c => {
+                    if (c.channel.members.array().length <= 1)
+                        c.channel.leave();
+                });
+            }, 1000 * 60 * 5);   // Check every 5 mins if alone in a channel and leave if alone
         }.bind(this));
     }
 
@@ -84,7 +90,6 @@ class Bot extends EventEmitter {
      * @returns Promise<void>
      */
     close() {
-        this.db.disconnect();
         for (var cmdMgr in this._commandManagers.values()) {
             cmdMgr.close();
         }

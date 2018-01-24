@@ -1,7 +1,7 @@
 const packageInfo = require("../../package.json");
 const ytdl = require("ytdl-core");
 const defaults = require("../defaults.json");
-const models = require("../database/models.js");
+const discordjs = require("discord.js");
 
 module.exports = {
     /**
@@ -33,30 +33,18 @@ module.exports = {
      * @returns {string} help text
      */
     respondeHelpText: function (data) {
-        return "IdoiaBot v" + packageInfo.version + " written by " + packageInfo.author;
+        return this.data.name + " v" + packageInfo.version + " written by " + packageInfo.author;
     },
 
     /**
-     * Play a Youtube video in a defined channel or in the channel of the sender of the command
+     * Play a Youtube video in the channel of the sender of the command
      * @param {object} data
      */
     playYoutubeVideo: function (data) {
         if (!data.message.guild) return;
-        let channel = null;
-        let videoUrl = null;
-        if (data.args.length == 2) {
-            videoUrl = data.args[1];
-            data.message.guild.channels.array().forEach(function (ch) {
-                if (ch.type == "voice" && ch.name == data.args[0]) {
-                    channel = ch;
-                    return false;
-                }
-            }, this);
-        } else if (data.args.length == 1) {
-            videoUrl = data.args[0];
-            channel = data.message.member.voiceChannel;
-        }
-        if (channel && videoUrl) {
+        let channel = data.message.member.voiceChannel;
+        let videoUrl = data.arg;
+        if (videoUrl && channel && channel.speakable) {
             channel.join().then(function (connection) {
                 connection.playStream(ytdl(videoUrl, { quality: "lowest", highWaterMark: defaults.youtubeBufferSize }), { passes: 2 }).on("end", function () {
                     channel.leave();
@@ -66,10 +54,13 @@ module.exports = {
     },
 
     /**
-     * Create a command in the database
+     * Play a radio stream in the channel of the sender of the command
      * @param {object} data
      */
-    createCommand: function(data) {
-        
+    playRadioStream: function (data) {
+        if (data.message.member.voiceChannel && data.arg) {
+            let url = this.data[data.arg] || data.arg;
+            data.message.member.voiceChannel.join().then(conn => conn.playArbitraryInput(url));
+        }
     }
 };
