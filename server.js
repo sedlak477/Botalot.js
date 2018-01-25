@@ -2,6 +2,8 @@ const { Bot } = require("./bot/bot.js");
 const command = require("./bot/command.js");
 const log = require("loglevel");
 
+log.setLevel("trace");
+
 log.info("Creating bot");
 let bot = new Bot();
 
