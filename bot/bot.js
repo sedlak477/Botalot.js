@@ -50,12 +50,12 @@ class Bot extends EventEmitter {
         this._client.on("ready", function () {
             this._client.user.setPresence({ game: { name: options.statusText || defaults.statusText || null } });
 
-            setInterval(() => {
-                this._client.voiceConnections.array().forEach(c => {
-                    if (c.channel.members.array().length <= 1)
-                        c.channel.leave();
-                });
-            }, 1000 * 60 * 5);   // Check every 5 mins if alone in a channel and leave if alone
+            // setInterval(() => {
+            //     this._client.voiceConnections.array().forEach(c => {
+            //         if (c.channel.members.array().length <= 1)
+            //             c.channel.leave();
+            //     });
+            // }, 1000 * 60 * 5);   // Check every 5 mins if alone in a channel and leave if alone
         }.bind(this));
     }
 
