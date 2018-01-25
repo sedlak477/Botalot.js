@@ -1,5 +1,3 @@
-import { setInterval } from "timers";
-
 /**
  * @module bot/bot
  */
