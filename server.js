@@ -2,16 +2,16 @@ const { Bot } = require("./bot/bot.js");
 const command = require("./bot/command.js");
 const log = require("loglevel");
 
-log.debug("Creating bot");
+log.info("Creating bot");
 let bot = new Bot();
 
-log.trace("Registering command managers");
+log.info("Registering command managers");
 bot.registerCommandManager("!",
     new command.CommandManager(command.parseCommands(
         require("./bot/commandsets/commands.json")
     ))
 );
-log.debug("Command managers registered");
+log.info("Command managers registered");
 
 bot.on("error", console.error);
 bot.on("login", () => log.info("Logged in"));
