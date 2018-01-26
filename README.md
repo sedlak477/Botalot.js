@@ -11,7 +11,7 @@ const { Botalot, CommandManager, parseCommands } = require("botalot.js");
 
 let bot = new Botalot();
 
-bot.registerCommandManager("!",
+bot.registerCommandManager("!",  // Prefix for commands of this command manger
     new CommandManager(parseCommands({
         "name": ["hello", "hi"],  // String or array of strings; Command name people need to type to call this command
         "callback": "respondeText",  // Callback when users calls command
