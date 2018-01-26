@@ -4,7 +4,6 @@
 
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
-const defaults = require("./defaults.json");
 
 class Bot extends EventEmitter {
 
@@ -48,14 +47,14 @@ class Bot extends EventEmitter {
         }.bind(this));
 
         this._client.on("ready", function () {
-            this._client.user.setPresence({ game: { name: options.statusText || defaults.statusText || null } });
+            this._client.user.setPresence({ game: { name: options.statusText || null } });
 
-            // setInterval(() => {
-            //     this._client.voiceConnections.array().forEach(c => {
-            //         if (c.channel.members.array().length <= 1)
-            //             c.channel.leave();
-            //     });
-            // }, 1000 * 60 * 5);   // Check every 5 mins if alone in a channel and leave if alone
+            setInterval(() => {
+                this._client.voiceConnections.array().forEach(c => {
+                    if (c.channel.members.array().length <= 1)
+                        c.channel.leave();
+                });
+            }, 1000 * 60 * 5);   // Check every 5 mins if alone in a channel and leave if alone
         }.bind(this));
     }
 
@@ -80,7 +79,7 @@ class Bot extends EventEmitter {
      * @param {string} token Discord API token
      */
     login(token) {
-        this._client.login(token).then(() => this.emit("login")).catch((err) => this.emit("error", err));
+        this._client.login(token).then(() => this.emit("login")).catch(err => this.emit("error", err));
     }
 
     /**

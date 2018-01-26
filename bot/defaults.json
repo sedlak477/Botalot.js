@@ -1,9 +1,0 @@
-{
-    "commandPrefix": "!",
-    "statusText": "",
-    "youtubeBufferSize": 4194304,
-    "commands": {
-        "usage": "No usage defined :/",
-        "help": "Whoops, I forgot what this does..."
-    }
-}

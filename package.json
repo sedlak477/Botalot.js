@@ -23,7 +23,6 @@
   "homepage": "https://github.com/sedlak477/IdoiaBot#readme",
   "dependencies": {
     "discord.js": "^11.1.0",
-    "loglevel": "^1.6.1",
     "ytdl-core": "^0.14.4"
   },
   "optionalDependencies": {

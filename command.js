@@ -2,9 +2,7 @@
  * @module bot/command
  */
 
-const defaults = require("./defaults.json");
 const CommandContextManager = require("./context.js").CommandContextManager;
-const cmdTemplates = require("./templates/commands.js");
 
 /**
  * Represents a command that can be called by users
@@ -30,13 +28,15 @@ class Command {
      * @prop {string} usage A short description how to call the command
      * @prop {string} help A short description of how to use the command 
      * @prop {Object} data The object the this keyword of the command callback function points to
+     * @prop {string|string[]} name The name or names of the command
      */
     /**
      * Create a new command
      * @param {commandOptions} options Options
+     * @param {object} cmdTemplates Object containing all the functions for commands
      * @param {string|string[]} name - The name or names of the command
      */
-    constructor(options, name) {
+    constructor(options, cmdTemplates, name) {
         options = options || {};
         /**
          * Predefined data for the execution of the command
@@ -48,13 +48,13 @@ class Command {
          * Usage definition
          * @type {string}
          */
-        this.usage = options.usage || defaults.commands.usage || "";
+        this.usage = options.usage || "No usage defined";
 
         /**
          * Help string
          * @type {string}
          */
-        this.help = options.help || defaults.commands.help || "";
+        this.help = options.help || "**There is no help**";
 
         /**
          * Name or names of the command
@@ -179,5 +179,5 @@ module.exports = {
      * @param {object[]} cmdDef List of command definitions
      * @returns {Command[]} List of Commands
      */
-    parseCommands: cmdDef => cmdDef.map(d => Array.isArray(d)?parseCommands(d):new Command(d))
+    parseCommands: (cmdDef, cmdTemplates) => cmdDef.map(d => Array.isArray(d)?parseCommands(d):new Command(d, cmdTemplates))
 };
