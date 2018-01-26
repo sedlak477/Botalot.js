@@ -7,7 +7,7 @@ Botalot.js is a side project to get familiar with Node.js, it's under developmen
 ## Usage
 Using Botalot.js is not that hard:
 ```javascript
-const { Botalot, CommandManager, parseCommands } = require("bot.js");
+const { Botalot, CommandManager, parseCommands } = require("botalot.js");
 
 let bot = new Botalot();
 
