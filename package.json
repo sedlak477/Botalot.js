@@ -1,15 +1,14 @@
 {
   "name": "botalot.js",
   "version": "1.0.0",
-  "description": "A bot for Discord",
+  "description": "A simple bot-making framework for Discord written in Node.js",
   "main": "bot/bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sedlak477/IdoiaBot.git"
+    "url": "git+https://github.com/sedlak477/Botalot.js.git"
   },
   "keywords": [
     "discord",
@@ -18,11 +17,10 @@
   "author": "sedlak477",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sedlak477/IdoiaBot/issues"
+    "url": "https://github.com/sedlak477/Botalot.js/issues"
   },
-  "homepage": "https://github.com/sedlak477/IdoiaBot#readme",
+  "homepage": "https://github.com/sedlak477/Botalot.js#readme",
   "dependencies": {
-    "discord.js": "^11.1.0",
-    "ytdl-core": "^0.14.4"
+    "discord.js": "^11.1.0"
   }
 }
