@@ -1,7 +1,6 @@
 const packageInfo = require("../../package.json");
 const ytdl = require("ytdl-core");
 const defaults = require("../defaults.json");
-const discordjs = require("discord.js");
 
 module.exports = {
     /**
@@ -24,7 +23,7 @@ module.exports = {
             options: {
                 files: [this.data.files[Math.floor(Math.random() * this.data.files.length)]]
             }
-        }
+        };
     },
 
     /**

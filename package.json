@@ -25,11 +25,5 @@
     "discord.js": "^11.1.0",
     "loglevel": "^1.6.1",
     "ytdl-core": "^0.14.4"
-  },
-  "optionalDependencies": {
-    "uws": "^8.14.0"
-  },
-  "devDependencies": {
-    "opusscript": "0.0.3"
   }
 }
