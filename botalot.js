@@ -4,6 +4,7 @@
 
 const discordjs = require("discord.js");
 const EventEmitter = require("events").EventEmitter;
+const command = require("./command.js");
 
 class Bot extends EventEmitter {
 
@@ -95,5 +96,8 @@ class Bot extends EventEmitter {
 }
 
 module.exports = {
-    Bot: Bot
+    Botalot: Bot,
+    Command: command.Command,
+    CommandManager: command.CommandManager,
+    parseCommands: command.parseCommands
 };

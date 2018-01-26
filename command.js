@@ -88,7 +88,7 @@ class Command {
     execute(message, arg, commandManager, bot) {
         let context = this._contextManager.getExecutionContext(message.channel, message.guild);
         if (this.callback) {
-            let answer = this.callback.bind(context)({ message: message, arg: arg, commandManager: commandManager, bot: bot});
+            let answer = this.callback.bind(context)({ message: message, arg: arg, commandManager: commandManager, bot: bot });
             if(typeof(answer) === "object") {
                 message.channel.send(answer.message, answer.options);
             } else if (answer) {
