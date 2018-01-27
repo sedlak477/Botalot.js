@@ -75,7 +75,7 @@ class Command {
         if (options.context) {
             let cc = otherCmds.find(c => c.isCommand(options.context));
             if (cc)
-                this._contextManager = cc._contextManager;
+                this._contextManager = cc._contextManager.addData(this.data);
             else
                 throw `Invalid command definition: Context '${options.context}' referenced before definition`;
         } else

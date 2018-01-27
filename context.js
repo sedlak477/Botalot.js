@@ -82,6 +82,16 @@ class CommandContextManager {
             this._channelContexts.set(id, {});
         return this._channelContexts.get(id);
     }
+
+    /**
+     * Add data to execution data
+     * @param {object} data Date to be added
+     * @return {CommandContextManager} this, for chaining
+     */
+    addData(data) {
+        Object.assign(this.data, data);
+        return this;
+    }
 }
 
 module.exports = {
