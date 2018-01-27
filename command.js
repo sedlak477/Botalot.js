@@ -28,15 +28,16 @@ class Command {
      * @prop {string} usage A short description how to call the command
      * @prop {string} help A short description of how to use the command 
      * @prop {Object} data The object the this keyword of the command callback function points to
+     * @prop {string} context Name of the command to which the context gets referenced
      * @prop {string|string[]} name The name or names of the command
      */
     /**
      * Create a new command
      * @param {commandOptions} options Options
      * @param {object} cmdTemplates Object containing all the functions for commands
-     * @param {string|string[]} name - The name or names of the command
+     * @param {Command[]} otherCmds Other commands that get searched for their context
      */
-    constructor(options, cmdTemplates, name) {
+    constructor(options, cmdTemplates, otherCmds) {
         options = options || {};
         /**
          * Predefined data for the execution of the command
@@ -60,7 +61,7 @@ class Command {
          * Name or names of the command
          * @type {string|string[]}
          */
-        this.name = name || options.name;
+        this.name = options.name;
 
         //If it's a string try get from templates
         if (typeof(options.callback) === "string") {
@@ -71,11 +72,14 @@ class Command {
         // If nothing worked we do nothing; maybe should throw an error
         this.callback = this.callback || function() {};
 
-        /**
-         * Manager managing all the contexts
-         * @private
-         */
-        this._contextManager = new CommandContextManager(this.data);
+        if (options.context) {
+            let cc = otherCmds.find(c => c.isCommand(options.context));
+            if (cc)
+                this._contextManager = cc._contextManager;
+            else
+                throw "Invalid command definition: Context '${options.context}' referenced before definition";
+        } else
+            this._contextManager = new CommandContextManager(this.data);
     }
 
     /**
@@ -177,7 +181,12 @@ module.exports = {
     /**
      * Parse command definitions into Commands
      * @param {object[]} cmdDef List of command definitions
+     * @param {object} cmdTemplates Object containing the code for the commands
      * @returns {Command[]} List of Commands
      */
-    parseCommands: (cmdDef, cmdTemplates) => cmdDef.map(d => Array.isArray(d)?parseCommands(d):new Command(d, cmdTemplates))
+    parseCommands: (cmdDef, cmdTemplates) => {
+        cmds = [];
+        cmdDef.forEach(d => Array.isArray(d) ? cmds.concat(parseCommands(d)) : cmds.push(new Command(d, cmdTemplates, cmds)));
+        return cmds;
+    }
 };

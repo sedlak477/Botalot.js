@@ -65,3 +65,4 @@ out/
 .vscode/**
 .eslintrc.json
 db/
+.jshintrc
