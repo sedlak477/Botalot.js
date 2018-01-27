@@ -77,7 +77,7 @@ class Command {
             if (cc)
                 this._contextManager = cc._contextManager;
             else
-                throw "Invalid command definition: Context '${options.context}' referenced before definition";
+                throw `Invalid command definition: Context '${options.context}' referenced before definition`;
         } else
             this._contextManager = new CommandContextManager(this.data);
     }

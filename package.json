@@ -1,6 +1,6 @@
 {
   "name": "botalot.js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple bot-making framework for Discord written in Node.js",
   "main": "botalot.js",
   "scripts": {
